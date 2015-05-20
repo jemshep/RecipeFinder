@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Recipe Finder</title>
+	<link rel="stylesheet" href="src/css/recipe-finder.css">
+</head>
+<body>
+	<div id="pg-container">
+
+		<h1 id="recipe-finder-heading">Recipe Finder</h1>
+
+		<div id="fridge-container">
+			<label accesskey="f" for="fridge">Fridge</label>
+			<br/>
+			<textarea id="fridge" cols="50" rows="7">
+				bread,1,slices,25/12/2016
+				cheese,1,slices,25/12/2016
+				butter,25,grams,25/12/2016
+				peanut butter,25,grams,2/12/2016
+				mixed salad,15,grams,26/12/2016
+			</textarea>
+			<br/>
+			<p id="fridge-errors">
+			</p>
+		</div>
+
+		<br/>
+
+		<div id="cook-book-container">
+			<label accesskey="c" for="cook-book">Cook book</label>
+			<br/>
+			<textarea id="cook-book" cols="80" rows="10">
+				[
+         		 	{
+        		 		"name" : "grilled cheese on toast",
+        		 		"ingredients" :	[
+        		 		               	 	{ "item":"bread", "amount":"2", "unit":"slices"},
+        		 		               	 	{ "item":"cheese", "amount":"1", "unit":"of"}
+        		 		               	]
+        		 	}
+        		 	,
+        		 	{
+        		 		"name": "salad sandwich",
+        		 		"ingredients":	[
+        		 		              	 	{ "item":"bread", "amount":"2", "unit":"slices"},
+        		 		              	 	{ "item":"mixed salad", "amount":"100", "unit":"grams"}
+        		 		              	]
+        		 	}
+       		 	]
+			</textarea>
+			<br/>
+			<p id="cook-book-errors">
+			</p>
+		</div>
+
+		<br/>
+
+		<div id="meal-planner-container">
+			<input id="meal-planner" type="button" accesskey="r" value="Recommend next meal" />
+			<br/>
+			<div id="recommendation-container">
+				<p id="recommendation">
+				</p>
+			</div>
+		</div>
+
+	</div>
+	
+	<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+	<script src="src/js/cook-book.js"></script>
+	<script src="src/js/fridge.js"></script>
+	<script src="src/js/ingredient.js"></script>
+	<script src="src/js/meal-planner.js"></script>
+	<script src="src/js/recipe-finder.js"></script>
+	<script src="src/js/recipe.js"></script>
+	
+	<script type="text/javascript">
+		// Default the input elements on page load.
+		$(window).load(function() {
+			recipeFinder.defaultSettings();
+		});
+		
+		// Show the recommended meal when requested.
+		$('#meal-planner').click(function() {
+			recipeFinder.showRecommendation();
+		});
+	</script>
+</body>
+</html>

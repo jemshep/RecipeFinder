@@ -95,6 +95,25 @@ Fridge.prototype = {
 		}
 		// Couldn't find it, so...
 		return null;
+	},
+	
+	/*
+	 * Empties the fridge of old ingredients.
+	 */
+	cleanFridge : function() {
+		var todaysDate = new Date();
+		// For each ingredient in the fridge...
+		for (var i = 0; i < this.ingredients.length; i++) {
+			// Get this ingredient's use-by date.
+			var expiryDate = this.ingredients[i].expiryDate;
+			// See if this ingredient has past its use-by date.
+			if (todaysDate.getTime() > expiryDate.getTime()) {
+				// Chuck this ingredient out of the fridge.
+				this.ingredients.splice(i, 1);
+				// Decrement the loop counter now our array has been reduced by one element.
+				i--;
+			}
+		}
 	}
 	
 };

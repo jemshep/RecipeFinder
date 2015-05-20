@@ -32,28 +32,30 @@ MealPlanner.prototype = {
 	
 	/*
 	 * Returns the recommended next meal based on the current recipes and fridge contents.
+	 * Note that before finding an appropriate meal, the fridge is 1st cleaned of all expired ingredients.
 	 * If no meal can be prepared using ingredients in the fridge, an alternative is suggested. 
 	 */
 	recommendNextMeal : function() {
-		// We want to cook a recipe containing an ingredient with the earliest expiry date. 
+		// Clean out the fridge of all expired ingredients. This makes searching faster and frees up fridge space.
+		this.fridge.cleanFridge();
+		// We want to cook a recipe containing an ingredient with the earliest expiry date.
+		var earliestIngredientExpiry = new Date();
+		// Keep track of all possible meals based on available ingredients and then we'll see which one to cook 1st.
 		var possibleMealDetails = new Array();
+		// If we can't find anything, our default recommendation is to order take-out.
 		var recommendedRecipe = "Order Takeout";
 		// For each recipe in the cook book...
-		for (var r = 0; r < this.cookBook.length; r++) {
-			var earliestIngredientExpiry = (new Date()).setFullYear(9999, 12, 31);
-			var recipe = this.cookBook[r];
-			// For each ingredient in the recipe...
+		for (var r = 0; r < this.cookBook.recipes.length; r++) {
+			// Initialise the earliest use-by date to a way off future so the 1st check should find a sooner one.
+			earliestIngredientExpiry.setFullYear(9999, 12, 31);
+			var recipe = this.cookBook.recipes[r];
+			// For each ingredient in this recipe...
 			for (var i = 0; i < recipe.ingredients.length; i++) {
 				var ingredient = recipe.ingredients[i];
-				// See if this ingredient is not in the fridge by trying to get the use-by date.
+				// See if this ingredient is in the fridge.
 				var ingredientInFridge = this.fridge.getIngredientByItemName(ingredient.item);
-				var expiryDate = ingredientInFridge.expiryDate;
-				if (expiryDate == null) {
-					// Move onto the next recipe in the cook book.
-					break;
-				}
-				// See if the ingredient has passed its use-by date.
-				if ((new Date()).getTime() > expiryDate.getTime()) {
+				// See if we couldn't find the required ingredient in the fridge.
+				if (ingredientInFridge == null) {
 					// Move onto the next recipe in the cook book.
 					break;
 				}
@@ -63,28 +65,34 @@ MealPlanner.prototype = {
 					break;
 				}
 				// See if this ingredient is going to expire before the earliest we have recorded for this recipe.
-				if (earliestIngredientExpiry.getTime() > expiryDate.getTime()) {
+				if (earliestIngredientExpiry.getTime() > ingredientInFridge.expiryDate.getTime()) {
 					// Replace our prior 'earliest' with this new 'earliest'.
-					earliestIngredientExpiry = expiryDate;
+					earliestIngredientExpiry.setTime(ingredientInFridge.expiryDate.getTime());
 				}
 				// See if this is the last ingredient required in the recipe.
 				if ((i + 1) == recipe.ingredients.length) {
 					// If we got this far it means we have a meal that can be prepared, but is it the best option?
-					// We won't know until we've looked at all of them. Keep this one in mind though.
+					// We won't know until we've looked at all recipes. Keep this one in mind though.
 					possibleMealDetails.push(
-						{"recipeName":recipe.name, "earliestIngredientExpiry" : earliestIngredientExpiry}
+						{
+						"recipeName" : recipe.name,
+						"earliestIngredientExpiry" : new Date(
+								earliestIngredientExpiry.getTime())
+					}
 					);
 				}
 			}
 		}
-		earliestIngredientExpiry = (new Date()).setFullYear(9999, 12, 31);
+		// We now have a list of possible meals. But we should recommend the one with the earliest expiry.
+		earliestIngredientExpiry.setFullYear(9999, 12, 31);
 		// Go through each possible meal looking for the one with the earliest ingredient expiry date.
 		for (var m = 0; m < possibleMealDetails.length; m++) {
 			// See if this meal is going to expire before the earliest we've found so far.
-			if (earliestIngredientExpiry.getTime() > possibleMealDetails.earliestIngredientExpiry.getTime()) {
+			if (earliestIngredientExpiry.getTime() > possibleMealDetails[m].earliestIngredientExpiry.getTime()) {
 				// Replace our prior 'earliest' with this new 'earliest'.
-				earliestIngredientExpiry = possibleMealDetails.earliestIngredientExpiry;
-				recommendedRecipe = possibleMealDetails.recipeName;
+				earliestIngredientExpiry.setTime(possibleMealDetails[m].earliestIngredientExpiry.getTime());
+				// Update the best recommended recipe.
+				recommendedRecipe = possibleMealDetails[m].recipeName;
 			}
 		}
 		return recommendedRecipe;

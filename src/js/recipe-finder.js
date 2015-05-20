@@ -1,16 +1,9 @@
 /*
  * This file contains j-s functionality specifically for the recipe finder page.
- *
  * Key functions to use include:
+ * 
  * 		defaultSettings();
  * 		showRecommendation();
- * 		hideRecommendation();
- * 
- * Other functions of interest include:
- * 		defaultIngredients();
- * 		defaultRecipes();
- * 		showIngredientErrors();
- * 		showRecipeErrors();
  */
 
 var recipeFinder = {
@@ -19,8 +12,10 @@ var recipeFinder = {
 	 * Sets the form input elements to their default settings. 
 	 */
 	defaultSettings : function() {
-		// TODO Set the ingredients form input element to the default ingredients.
-		// TODO Set the recipes form input element to the default recipes.
+		// Set the ingredients form input element to the default ingredients.
+		$('#fridge').val(this.defaultIngredients);
+		// Set the recipes form input element to the default recipes.
+		$('#cook-book').val(JSON.stringify(this.defaultRecipes));
 	},
 	
 	/*
@@ -36,37 +31,70 @@ var recipeFinder = {
 	 * The default recipes that give the user an idea of the format and something to start with.  
 	 */
 	defaultRecipes :	[
-	                	 {
-	                		 "name": "grilled cheese on toast",
-	                    	 "ingredients": [
-	                    	  			{ "item":"bread", "amount":"2", "unit":"slices"},
-	                    	  			{ "item":"cheese", "amount":"2", "unit":"slices"}
-	                    	 ]
-	                	 }
-	                	 ,
-	                	 {
-	                    	"name": "salad sandwich",
-	                    	"ingredients": [
-	                    		{ "item":"bread", "amount":"2", "unit":"slices"},
-	                    		{ "item":"mixed salad", "amount":"100", "unit":"grams"}
-	                    	]
-	                	 }
+		                	 {
+		                		 "name": "grilled cheese on toast",
+		                    	 "ingredients": [
+                    	  			{ "item":"bread", "amount":"2", "unit":"slices"},
+                    	  			{ "item":"cheese", "amount":"2", "unit":"slices"}
+		                    	 ]
+		                	 }
+		                	 ,
+		                	 {
+		                    	"name": "salad sandwich",
+		                    	"ingredients": [
+		                    		{ "item":"bread", "amount":"2", "unit":"slices"},
+		                    		{ "item":"mixed salad", "amount":"100", "unit":"grams"}
+		                    	]
+		                	 }
 	                    ],
+	
+	/*
+	 * Reads the JSON cook book contents specification and constructs a CookBook object returning it.
+	 * If there were any validation errors, these are displayed and null is returned.
+	 */
+	initCookBook : function() {
+		var cookBook = new CookBook();
+		// Get the shopping.
+		var cookBookContentsAsJson = $('#cook-book').val();
+		// Put it in the cook book.
+		errors = cookBook.initForJson(eval(cookBookContentsAsJson));
+		// See if there were any validation errors.
+		if (errors != null) {
+			alert("You can't put that in the cook book.");
+			$('#cook-book-errors').text(errors);
+			return null;
+		}
+		return cookBook;
+	},
+	
+	/*
+	 * Reads the CSV fridge contents specification and constructs a Fridge object returning it.
+	 * If there were any validation errors, these are displayed and null is returned. 
+	 */
+	initFridge : function() {
+		var fridge = new Fridge();
+		// Get the shopping.
+		var fridgeContentsAsCsv = $('#fridge').val();
+		// Put it in the fridge.
+		errors = fridge.initForCsv(fridgeContentsAsCsv);
+		// See if there were any validation errors.
+		if (errors != null) {
+			alert("You can't put that in the fridge.");
+			$('#fridge-errors').text(errors);
+			return null;
+		}
+		return fridge;
+	},
 	
 	/*
 	 * Performs any validation and shows any errors before showing the recommendation.
 	 */
 	showRecommendation : function() {
-		// TODO Validate the ingredients and show any errors.
-		// TODO Validate the recipes and show any errors.
-		// TODO Calculate the recommendation and show it.
+		var cookBook = this.initCookBook();
+		var fridge = this.initFridge();
+		var mealPlanner = new MealPlanner(cookBook, fridge);
+		var nextMealRecommended = mealPlanner.recommendNextMeal();
+		$('#recommendation').text(nextMealRecommended);
 	},
-	
-	/*
-	 * Hides any previously displayed recommendation.
-	 */
-	hideRecommendation : function() {
-		// TODO Hide any recommendation.
-	}
 
 };

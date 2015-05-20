@@ -1,0 +1,23 @@
+/*
+ * Styling for the recipe finder.
+ */
+
+#pg-container {
+	margin: 20px;
+}
+
+#recipe-finder-heading {
+	// TODO
+}
+
+#fridge-container label {
+	color: blue;
+	font-weight: bold;
+}
+
+#cook-book-container label {
+	color: green;
+	font-weight: bold;
+}
+
+// TODO

@@ -3,14 +3,62 @@
  */
 
 
+QUnit.test('Fridge test - cleanFridge', function(assert) {
+	var fridge = new Fridge(); 
+	var test = null;
+	var thePast = new Date();
+	thePast.setFullYear(1999, 1, 1);
+	var theFuture = new Date();
+	theFuture.setFullYear(2200, 1, 1);
+
+	fridge.ingredients =	[
+	                    	 	{"item":"bread", "amount":"2", "unit":"slices", "expiryDate":thePast},
+			        		 	{"item":"cheese", "amount":"2", "unit":"slices", "expiryDate":thePast}
+	                    	];
+	test = 'both expired';
+	fridge.cleanFridge(null);
+	assert.equal(fridge.ingredients.length, 0);
+
+	fridge.ingredients =	[
+	                    	 	{"item":"bread", "amount":"2", "unit":"slices", "expiryDate":theFuture},
+			        		 	{"item":"cheese", "amount":"2", "unit":"slices", "expiryDate":thePast}
+	                    	];
+	test = 'cheese expired';
+	fridge.cleanFridge(null);
+	assert.equal(fridge.ingredients.length, 1);
+	assert.equal(fridge.ingredients[0].item, 'bread');
+
+	fridge.ingredients =	[
+	                    	 	{"item":"bread", "amount":"2", "unit":"slices", "expiryDate":thePast},
+			        		 	{"item":"cheese", "amount":"2", "unit":"slices", "expiryDate":theFuture}
+	                    	];
+	test = 'bread expired';
+	fridge.cleanFridge(null);
+	assert.equal(fridge.ingredients.length, 1);
+	assert.equal(fridge.ingredients[0].item, 'cheese');
+
+	fridge.ingredients =	[
+	                    	 	{"item":"bread", "amount":"2", "unit":"slices", "expiryDate":theFuture},
+			        		 	{"item":"cheese", "amount":"2", "unit":"slices", "expiryDate":theFuture}
+	                    	];
+	test = 'both OK';
+	fridge.cleanFridge(null);
+	assert.equal(fridge.ingredients.length, 2);
+	assert.equal(fridge.ingredients[0].item, 'bread');
+	assert.equal(fridge.ingredients[1].item, 'cheese');
+});
+
+
 QUnit.test('Fridge test - getIngredientByItemName', function(assert) {
 	var fridge = new Fridge(); 
 	var actual = null;
 	var result = null;
 	var test = null;
-
-	var breadDate = (new Date()).setFullYear(2014, 10, 2);
-	var cheeseDate = (new Date()).setFullYear(2015, 4, 12);
+	var breadDate = new Date();
+	var cheeseDate = new Date();
+	
+	breadDate.setFullYear(2014, 10, 2);
+	cheeseDate.setFullYear(2015, 4, 12);
 	fridge.ingredients =	[
 	                    	 	{"item":"bread", "amount":"2", "unit":"slices", "expiryDate":breadDate},
 			        		 	{"item":"cheese", "amount":"2", "unit":"slices", "expiryDate":cheeseDate}
@@ -48,6 +96,8 @@ QUnit.test('Fridge test - initForCsv', function(assert) {
 	var actual = null;
 	var result = null;
 	var test = null;
+	var breadDate = new Date();
+	var cheeseDate = new Date();
 
 	test = 'null';
 	actual = fridge.initForCsv(null);
@@ -58,8 +108,8 @@ QUnit.test('Fridge test - initForCsv', function(assert) {
 	assert.ok(actual != null, test + ':' + (actual == null ? "ok" : actual));
 
 	var csv = null;
-	var breadDate = (new Date()).setFullYear(2014, 10, 2);
-	var cheeseDate = (new Date()).setFullYear(2015, 4, 12);
+	breadDate.setFullYear(2014, 10, 2);
+	cheeseDate.setFullYear(2015, 4, 12);
 
 	test = '1 item';
 	csv = 'bread,2,slices,2/11/2014';
